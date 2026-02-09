@@ -1,0 +1,2 @@
+"""Taph: A library for Immutable objects."""
+__version__ = '0.0.1'

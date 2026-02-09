@@ -1,0 +1,20 @@
+# ===================================================================
+# Clean Glob for Fossil SCM Repository
+# ===================================================================
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# --- Python caches ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Test & Tooling Caches ---
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache
+.mypy_cache

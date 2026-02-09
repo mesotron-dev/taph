@@ -1,0 +1,63 @@
+# ===================================================================
+# Ignore Glob for Fossil SCM Repository
+# ===================================================================
+# See: https://fossil-scm.org/home/doc/trunk/www/settings.wiki
+
+# --- Git Export---
+.git/
+.mirror_state/
+
+# --- Byte-compiled files ---
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# --- SQLite database files ---
+*.sqlite3
+*.db
+*.db-*
+
+# --- Development environment ---
+/venv/
+.venv/
+/dev_env/
+
+# --- Environment & Secrets ---
+.env
+.env.toml
+.credentials/
+.credentials
+
+# --- Build, Distribution & Caches ---
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
+# --- Tooling & IDE Specific ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Logs & Test Artifacts ---
+*.log
+*.dump
+dist/log/
+dist/tmp/
+
+# --- Dependencies ---
+node_modules/
+
+# --- Other ---
+/static/
+
+# --- Ensure these files are versioned ---
+!.gitignore
+!.containerignore

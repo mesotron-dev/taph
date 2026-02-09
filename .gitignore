@@ -1,0 +1,60 @@
+# ===================================================================
+# Ignore File for the Git SCM Repository
+# ===================================================================
+# --- Fossil & SCM ---
+.fslckout
+.git/
+.mirror_state/
+
+# --- Byte-compiled files ---
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+
+# --- SQLite database files ---
+*.sqlite3
+*.db
+*.db-*
+
+# --- Development environment ---
+/venv/
+.venv/
+/dev_env/
+
+# --- Environment & Secrets ---
+.env
+.env.toml
+.credentials/
+.credentials
+
+# --- Build, Distribution & Caches ---
+_build/
+*.egg-info/
+*.tar*
+build/
+dist/
+.coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+/tmp/
+doc/
+deps/
+htmlcov/
+
+# --- Tooling & IDE Specific ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Logs & Test Artifacts ---
+*.log
+*.dump
+
+# --- Dependencies ---
+node_modules/
+
+# --- Static assets ---
+/static/
