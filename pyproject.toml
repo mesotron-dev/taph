@@ -1,0 +1,276 @@
+# ===================================================================
+# pyproject.toml for the taph package.
+# ===================================================================
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "taph"
+dynamic = ["version"]
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [
+    { name = "mesotron.dev", email = "mail@mesotron.dev" }
+]
+maintainers = [
+  { name = "mesotron.dev", email = "mail@mesotron.dev" },
+]
+
+keywords = [
+    "immutable",
+    "frozen",
+    "namespace",
+    "constant",
+    "functional",
+]
+
+classifiers = [
+"Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Typing :: Typed",
+]
+
+[dependency-groups]
+dev = [
+    {include-group = "test"},
+    {include-group = "lint"},
+]
+
+test = [
+  "pytest>=9.0.2",
+  "pytest-mock>=3.15.1",
+  "coverage>=7.13.3",
+]
+
+lint = [
+  "mypy>=1.19.1",
+  "mypy_extensions>=1.1.0",
+  "ruff>=0.14.14",
+]
+
+[project.urls]
+Homepage = "https://github.com/mesotron-dev/taph"
+Repository = "https://github.com/mesotron-dev/taph"
+
+# =====================================================================
+# Tool Configurations
+# ===================================================================
+
+[tool.hatch.version]
+path = "src/taph/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/taph"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "src",
+  "pyproject.toml",
+  "LICENSE",
+  "README.md",
+  "SECURITY.md"
+]
+exclude = [
+  ".venv",
+  "build",
+  "dist",
+  "tools",
+  "tests",
+  "__pycache__",
+  "*.egg-info",
+  ".fslckout",   
+  ".mirror_state",
+  ".git",          
+  "uv.lock",
+  ".fossil-settings",
+  "poetry.lock",
+  "pdm.lock",
+  "requirements.txt"
+]
+
+# ===================================================================
+# Ruff Configuration
+# ===================================================================
+[tool.ruff]
+target-version = "py314"
+line-length = 80
+exclude = [".venv", ".git", "__pycache__", "build", "dist", "tests"]
+cache-dir = "./dist/.ruff_cache"
+
+[tool.ruff.lint]
+select = [
+    "I",    # import sorting
+    "PL",   # pylint deep analysis
+    "D",    # pydocstyle
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "W",    # pycodestyle warnings
+    "C90",  # mccabe complexity
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "ANN",  # type annotations
+    "ASYNC",# async-related checks
+    "S",    # bandit security checks
+    "B",    # bugbear
+    "A",    # builtins shadowing
+    "C4",   # comprehensions
+    "DTZ",  # timezone-related checks
+    "EM",   # error messages
+    "ISC",  # implicit string concatenation
+    "G",    # logging format
+    "PIE",  # misc. linting
+    "T20",  # print statements
+    "PYI",  # stub files
+    "PT",   # pytest-related
+]
+
+ignore = [
+    # Pylint Refactor
+    "PLR0904", # too-many-public-methods (Classes are method-heavy)
+    "PLR2004", # magic-value-comparison (Allow constants in logic)
+    "PLR1722", # sys-exit-alias (Allow global exit in scripts)
+
+    # Docstring Missing
+    "D100",    # undocumented-public-module
+    "D101",    # undocumented-public-class
+    "D102",    # undocumented-public-method
+    "D103",    # undocumented-public-function
+    "D104",    # undocumented-public-package
+    "D105",    # undocumented-magic-method
+    "D106",    # undocumented-public-nested-class
+    "D107",    # undocumented-public-init
+
+    # Docstring Formatting Conflicts
+    "D203",    # one-blank-line-before-class (Using D211 instead)
+    "D213",    # multi-line-summary-second-line (Using D212 instead)
+]
+dummy-variable-rgx = "^(_|main)$"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D100", "D101", "D102", "D103", "D104", "D107", "PLR0904"]
+
+[tool.ruff.lint.pylint]
+max-args = 5
+max-branches = 10
+max-statements = 15
+
+[tool.ruff.lint.pep8-naming]
+classmethod-decorators = ["classmethod", "classproperty"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+docstring-code-line-length = 80
+
+# ===================================================================
+# MyPy Configuration
+# ===================================================================
+[tool.mypy]
+# Environment Config
+python_version = "3.14"
+mypy_path = "src"
+exclude = [
+    "tests/", "build/", "dist/", ".venv/", "src/*.egg-info/", ]
+# Output Config
+pretty = true
+show_error_context = true
+show_column_numbers = true
+show_error_codes = true
+# Cache Config
+cache_dir = "./dist/.mypy_cache"
+sqlite_cache = true
+cache_fine_grained = true
+# Strict Config
+strict = true
+strict_optional = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_unreachable = true
+ignore_missing_imports = false
+disallow_any_unimported = false
+disallow_any_expr = false
+disallow_any_decorated = false
+disallow_any_explicit = false
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_decorators = true
+
+# ===================================================================
+# PyTest & Coverage Configuration
+# ===================================================================
+[tool.pytest.ini_options]
+minversion = "9.0"
+addopts = [
+    "-ra",  
+    "-vv",
+    "--strict-markers",
+    "--doctest-modules",
+    "--basetemp=dist/tmp",
+]
+cache_dir = "dist/.pytest_cache"
+tmp_path_retention_count = 5
+tmp_path_retention_policy = "failed"
+python_files = "tests.py test_*.py *_tests.py"
+xfail_strict = true
+filterwarnings = [
+    "error", 
+]
+pythonpath = ["src"]
+testpaths = ["tests"]
+markers = [
+    "unit: mark a test as a unit test",
+    "integration: mark a test as an integration test",
+    "slow: mark test as slow-running"
+]
+# Logging Config
+log_cli = true
+log_cli_level = "INFO"
+log_auto_indent = true
+log_file = "dist/log/pytest.log"
+log_file_level = "INFO"
+
+[tool.coverage.run]
+source = ["taph"]
+branch = true
+data_file = "./dist/.coverage"
+omit = [
+    "tests/*",
+    "*/__init__.py",
+    "*/dist/*",
+    ".venv",
+]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+skip_covered = false
+precision = 2
+exclude_lines = [
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "pragma: no cover",
+    "def __repr__",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+    "pass",
+    "@(abc\\.)?abstractmethod",
+    "^\\s*pass\\s*$",
+]
+
+[tool.coverage.html]
+skip_empty = true
+skip_covered = false
+directory = "dist/docs/coverage_report"

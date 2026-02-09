@@ -12,3 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial project skeleton
 - CHANGELOG.md
+- Project configuration in pyproject.toml
+- README.md
+- LICENSE (Apache 2.0)
+- SECURITY.md
