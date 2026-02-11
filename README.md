@@ -26,7 +26,7 @@ pip install taph
 
 ## Usage
 
-Taph provides two modules: 
+Taph provides two classes of immutable objects: 
 
 - `Immutable` for instantiable data objects
 - `Namespace` for static constants.
@@ -106,7 +106,7 @@ Custom objects must inherit from `Immutable` or `Namespace`, or `freeze` will ra
 
 ## Functional Style
 
-Taph is the perfect foundation for functional programming in Python:
+Taph provides a solid foundation for functional programming in Python:
 
 ### 1.  **Pure Functions:** 
 
