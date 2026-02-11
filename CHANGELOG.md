@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-2-11
+- fixed & added classifiers for pyproject.toml
+- minor fixes in readme
+
 ## [0.1.0] - 2026-02-11
 ### Added
 - uv.lock for release
