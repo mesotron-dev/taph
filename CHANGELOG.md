@@ -6,8 +6,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.1.0] - 2026-02-11
+### Added
+- Integrated automated testing and linting via GitHub Actions.
+- py.typed version commit
+- Update & lint for pyproject.toml
+- Achieved 100% MC/DC test coverage for core immutability logic.
+- Added test fixtures for dynamic class creation and validation.
+- Verified protection against attribute mangling and deletion.
+- `Immutable` base class for static instances.
+- `Namespace` metaclass for static constants.
+- `freeze` utility for recursive immutability.
+- `ImmutableType` metaclass for `__slots__` enforcement.
 - `TaphError` base exception.
 - `ImmutableError` for specific immutability violations (inherits `TypeError`)
+
+### Changed
+- Update README to be release context aware
+- Fix CI for releases
+- Updates package `__init__` to expose public API.
+- Update package version in `__init__`
+- Update links and minor text lint for README.md
 
 ## [0.0.1] - 2026-02-09
 ### Added
