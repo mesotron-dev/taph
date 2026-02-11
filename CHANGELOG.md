@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] - 2026-02-11
 ### Added
+- uv.lock for release
 - Integrated automated testing and linting via GitHub Actions.
 - py.typed version commit
 - Update & lint for pyproject.toml
