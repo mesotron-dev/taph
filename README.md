@@ -1,30 +1,30 @@
 # Taph: Zero-Overhead Immutability for Python
 
 [![PyPI - Version](https://img.shields.io/pypi/v/taph.svg?style=flat-square)](https://pypi.org/project/taph/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](https://github.com/mesotron-dev/taph/blob/main/LICENSE)
-[![Tests](https://img.shields.io/github/actions/workflow/status/mesotron-dev/taph/tests.yml?branch=main&style=flat-square)](https://github.com/mesotron-dev/taph/actions)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
+[![Tests](https://img.shields.io/github/actions/workflow/status/mesotron-dev/taph/full-coverage.yml?style=flat-square)](https://github.com/mesotron-dev/taph/actions)
 [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg?style=flat-square)](https://github.com/mesotron-dev/taph/actions)
 
-Taph is a minimalist Python package for enforcing deep, zero-overhead immutability. Taph uses metaclasses and `__slots__` to create objects that are guaranteed to be unchangeable, enabling predictable, pure functional programming patterns in Python.
+Taph is a minimalist Python package for enforcing deep, zero-overhead immutability. Taph creates objects that are guaranteed to be unchangeable, enabling predictable, pure functional programming patterns in Python.
 
 Taph's core value proposition: **Fast & Reliable Immutability.**
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
 *   **Zero-Overhead:** Achieves immutability using Python's Method Resolution Order (MRO) and metaclass injection.
 *   **Memory Efficiency:** Enforces `__slots__` usage, eliminating the memory footprint of `__dict__` for every instance.
 *   **Deep Immutability:** Recursively transforms nested mutable structures (like `list`, `dict`) into immutable counterparts (`tuple`, `MappingProxyType`) during class creation.
-*   **Zero Dependencies:** A single-file core module built entirely on the Python Standard Library.
+*   **Zero Dependencies:** A single-file core module built using the Python Standard Library.
 
-## 🛠️ Installation
+## Installation
 
 ```bash
 pip install taph
 ```
 
-## ✨ Usage
+## Usage
 
 Taph provides two modules: 
 
@@ -65,7 +65,7 @@ except ImmutableError as e:
 
 ### 2. The `Namespace` Static Container
 
-Use `Namespace` for static configuration, constants, or utility groups. `Namespace` classes are **non-instantiable** and their class attributes are **recursively frozen** at creation time.
+Use `Namespace` for static configuration, constants, or utility groups. `Namespace` classes are **non-instantiable** and their class attributes are ** frozen** at creation time.
 
 ```python
 from taph import Namespace, ImmutableError
@@ -92,7 +92,7 @@ except ImmutableError as e:
     print(f"Success: {e}")
 ```
 
-## ❄️ Deep Freezing
+## Deep Freezing
 
 Taph's `freeze` utility ensures deep immutability by recursively converting mutable collections during class construction:
 
@@ -104,7 +104,7 @@ Taph's `freeze` utility ensures deep immutability by recursively converting muta
 
 Custom objects must inherit from `Immutable` or `Namespace`, or `freeze` will raise an `ImmutableError` at class definition time.
 
-## 🤝 Functional Style
+## Functional Style
 
 Taph is the perfect foundation for functional programming in Python:
 
@@ -161,11 +161,11 @@ def is_request_valid(request_duration: int, method: str) -> bool:
         return False
     return request_duration < Config.TIMEOUT_SECONDS
 
-# Config.TIMEOUT_SECONDS = 1 # Raises ImmutableError, protecting our function.
+# Config.TIMEOUT_SECONDS = 1 # Raises ImmutableError, protecting the function.
 ```
 
 ---
 
-## 📝 License
+## License
 
 Taph is licensed under the **Apache License 2.0**. See the [LICENSE](LICENSE) file for details.

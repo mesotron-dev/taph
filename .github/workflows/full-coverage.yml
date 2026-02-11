@@ -2,7 +2,11 @@ name: Full-Coverage
 
 on:
   push:
-    branches: [ trunk ]
+    branches:
+      - trunk
+      - release-*
+    tags:
+      - v*
   pull_request:
     branches: [ trunk ]
   workflow_dispatch:
