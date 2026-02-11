@@ -8,7 +8,7 @@ build-backend = "hatchling.build"
 [project]
 name = "taph"
 dynamic = ["version"]
-description = "Add your description here"
+description = "Taph creates objects that are guaranteed to be unchangeable, enabling predictable, pure functional programming patterns in Python."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { file = "LICENSE" }
@@ -89,6 +89,7 @@ exclude = [
   ".fslckout",   
   ".mirror_state",
   ".git",          
+  ".github",
   "uv.lock",
   ".fossil-settings",
   "poetry.lock",

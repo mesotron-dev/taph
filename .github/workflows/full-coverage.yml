@@ -1,0 +1,62 @@
+name: Full-Coverage
+
+on:
+  push:
+    branches: [ trunk ]
+  pull_request:
+    branches: [ trunk ]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Linter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install Lint Dependencies
+        run: uv sync --group lint
+
+      - name: Check Formatting & Style
+        run: uv run --group lint ruff check
+
+      - name: Static Type Check (MyPy)
+        run: uv run --group lint mypy -p taph
+
+  test:
+    name: Test Python ${{ matrix.python-version }}
+    needs: lint 
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "pyproject.toml"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install Test Dependencies
+        run: uv sync --group test
+
+      - name: Run Tests with Coverage
+        run: |
+          uv run --group test coverage run -m pytest && \
+          uv run --group test coverage report
