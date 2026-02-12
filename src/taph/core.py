@@ -6,6 +6,7 @@ via `__slots__` and ensures recursive immutability for attributes
 
 """
 import types
+from types import FunctionType
 from typing import Any, NoReturn
 
 from taph.exceptions import ImmutableError
@@ -187,7 +188,14 @@ def freeze(value: object) -> object:
     """
     if is_immutable(value) or isinstance(
         value,
-        (str, int, float, bool, type(None), bytes, complex, tuple, frozenset),
+        (
+            str, int, float, bool, type(None),
+            bytes, complex, tuple, frozenset,
+            FunctionType,
+            staticmethod,
+            classmethod,
+            property
+        ),
     ):
         return value
 

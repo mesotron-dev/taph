@@ -201,9 +201,9 @@ class TestNamespace:
 
 
 class TestFreeze:
-    """Tests for the recursive freeze function."""
-
+    """Tests for the recursive freeze function with full MC/DC coverage."""
     def test_primitives_pass_through(self):
+        """Condition: Not Immutable, but is Primitive Safe Type."""
         assert freeze(1) == 1
         assert freeze("a") == "a"
         assert freeze(1.1) == 1.1
@@ -212,36 +212,70 @@ class TestFreeze:
         assert freeze(b"b") == b"b"
         assert freeze(1j) == 1j
 
-    def test_tuple_and_frozenset_pass_through(self):
+    def test_tuples_and_frozensets_pass_through(self):
+        """Condition: Not Immutable, but is Container Safe Type."""
         t = (1, 2)
         fs = frozenset([1, 2])
         assert freeze(t) is t
         assert freeze(fs) is fs
 
+    def test_behavior_types_pass_through(self):
+        """Condition: Not Immutable, but is Behavior Safe Type (NEW)."""
+        def my_func(): pass
+        assert freeze(my_func) is my_func
+        sm = staticmethod(my_func)
+        assert freeze(sm) is sm
+        cm = classmethod(my_func)
+        assert freeze(cm) is cm
+        prop = property(lambda self: None)
+        assert freeze(prop) is prop
+
+    def test_immutable_object_pass_through(self, point_class):
+        """Condition: Is Immutable (Condition A1: True)."""
+        i = point_class(1, 2)
+        assert freeze(i) is i
+
     def test_list_to_tuple(self):
+        """Decision B: isinstance(list) -> True."""
         assert freeze([1, 2]) == (1, 2)
         assert freeze([[1], 2]) == ((1,), 2)
 
     def test_set_to_frozenset(self):
+        """Decision C: isinstance(set) -> True."""
         res = freeze({1, 2})
         assert isinstance(res, frozenset)
         assert res == frozenset({1, 2})
 
     def test_dict_to_mappingproxy(self):
+        """Decision D: isinstance(dict) -> True."""
         d = {'a': 1, 'b': [2]}
         res = freeze(d)
         assert isinstance(res, types.MappingProxyType)
         assert res['a'] == 1
-        assert res['b'] == (2,)  # Recursive
-
-    def test_immutable_object_pass_through(self, point_class):
-        i = point_class(1, 2)
-        assert freeze(i) is i
+        assert res['b'] == (2,)  # Recursive verify
 
     def test_unknown_mutable_raises(self, mutable_class):
+        """Decision E: Else -> Raise (Standard Object)."""
         with pytest.raises(ImmutableError, match="Object of type 'Dummy' may be mutable"):
             freeze(mutable_class(1))
 
+    def test_custom_callable_fails(self):
+        """Decision E: Else -> Raise (Custom Callable).
+
+        Crucial Negative Test: Ensures that while we allow 'functions',
+        we do NOT blindly allow any object just because it has __call__.
+        A mutable class with __call__ is still unsafe.
+        """
+        class UnsafeCallable:
+            def __call__(self):
+                pass
+
+        c = UnsafeCallable()
+
+        with pytest.raises(ImmutableError, match="Object of type 'UnsafeCallable' may be mutable"):
+            freeze(c)
+
     def test_unknown_mutable_in_container_raises(self, mutable_class):
+        """Recursion Failure Check."""
         with pytest.raises(ImmutableError):
             freeze([mutable_class(1)])
