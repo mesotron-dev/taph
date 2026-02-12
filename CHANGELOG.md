@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-02-12
+### Fixed
+- Fixed a defect where defining methods (`def`), `@staticmethod`, `@classmethod`, or `@property` on an `Immutable` or `Namespace` class would raise an `ImmutableError`.
+- `freeze()` update to identify and permit functions and descriptors to pass through, enabling behavior to be defined alongside immutable state.
+
 ## [0.1.1] - 2026-2-11
 - fixed & added classifiers for pyproject.toml
 - minor fixes in readme
