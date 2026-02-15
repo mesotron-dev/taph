@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Update ruff and sync uv.lock
 
 ## [0.1.2] - 2026-02-12
 ### Fixed
@@ -13,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `freeze()` update to identify and permit functions and descriptors to pass through, enabling behavior to be defined alongside immutable state.
 
 ## [0.1.1] - 2026-2-11
+### Fixed
 - fixed & added classifiers for pyproject.toml
 - minor fixes in readme
 
