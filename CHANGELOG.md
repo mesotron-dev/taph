@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Update ruff and sync uv.lock
+- Update librt v0.8.0 -> v0.8.1 & uv.lock
 
 ## [0.1.2] - 2026-02-12
 ### Fixed
