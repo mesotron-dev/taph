@@ -8,6 +8,7 @@ advertise their own immutable conversion logic.
 """
 from typing import Protocol, runtime_checkable
 
+
 @runtime_checkable
 class Freezable(Protocol):
     """A protocol for objects that can be explicitly frozen.
@@ -57,6 +58,7 @@ class Freezable(Protocol):
             frozen_config = taph.freeze(config)
 
     """
+
     def __freeze__(self) -> object:
         """Return an immutable representation of the object.
 
@@ -93,6 +95,7 @@ class Freeze(Protocol):
 
             # Call the function with the concrete implementation
             process_and_store({"key": [1, 2]}, freezer=freeze)
+
     """
 
     def __call__(self, obj: object) -> object:
@@ -103,5 +106,6 @@ class Freeze(Protocol):
 
         Returns:
             The immutable representation of the object.
+
         """
         ...
