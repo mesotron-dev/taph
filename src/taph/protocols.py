@@ -109,3 +109,41 @@ class Freeze(Protocol):
 
         """
         ...
+
+
+@runtime_checkable
+class Immutable(Protocol):
+    """A protocol for objects that cache their own cryptographic digest.
+
+    bytes: The raw binary digest (e.g., BLAKE2b 16 byte digest).
+
+    Contract:
+        1. The returned bytes MUST represent the BLAKE2b digest of the
+           object's content.
+        2. The value MUST be constant for the lifetime of the object.
+        3. The object MUST be deeply immutable.
+
+    """
+
+    __digest__: bytes
+
+
+    @property
+    def fingerprint(self) -> str:
+        """Return the Base64 URL-safe string without padding.
+
+        Returns:
+            str: The Base64 URL-safe string stripped of padding.
+
+        """
+        ...
+
+    @property
+    def hexdigest(self) -> str:
+        """Return the a hexadecimal string.
+
+        Returns:
+            str: A hexadecimal string.
+
+        """
+        ...

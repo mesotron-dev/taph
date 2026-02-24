@@ -1,14 +1,24 @@
-"""Taph: A library for Immutable objects."""
+"""Taph: A library for Record objects."""
 
-from taph.core import Immutable, Namespace, freeze, is_immutable
-from taph.exceptions import ImmutableError, TaphError
+from taph.exceptions import (
+    FrozenDictError,
+    ImmutableError,
+    ManifestError,
+    RecordError,
+    TaphError,
+)
+from taph.frozen_dict import FrozenDict
+from taph.manifest import Manifest
+from taph.record import Record
 
 __version__ = '0.1.2'
 __all__ = (
-    'Namespace',
-    'Immutable',
+    'FrozenDict',
+    'FrozenDictError',
     'ImmutableError',
+    'Manifest',
+    'ManifestError',
+    'Record',
+    'RecordError',
     'TaphError',
-    'is_immutable',
-    'freeze',
 )

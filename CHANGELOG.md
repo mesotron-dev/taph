@@ -14,12 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the protocols module with Freeze and Freezable protocols.
 
 ### Changed
-- Update ruff v0.15.0 -> v0.15.1 & uv.lock
 - Update librt v0.8.0 -> v0.8.1 & uv.lock
 - Update ruff v0.15.1 -> v0.15.2 & uv.lock
+- Update exceptions module with new class names
+- Update protocols module with the Immutable protocol
+- Update taph.__init__ module with new names
 
 ### Fixed
 - minor doc fixes
+
+### Removed
+- Refactored core module and refactored into new classes & modules 
 
 ## [0.1.2] - 2026-02-12
 ### Fixed

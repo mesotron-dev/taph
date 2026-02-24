@@ -1,17 +1,52 @@
-"""Custom exception types for the Taph library."""
+"""Exceptions for the Taph library."""
 
-__all__ = ('TaphError', 'ImmutableError')
+__all__ = (
+    'TaphError',
+    'ImmutableError',
+    'RecordError',
+    'ManifestError',
+    'FrozenDictError'
+)
 
 
 class TaphError(Exception):
-    """Raise the base exception for all Taph-related errors."""
+    """Base exception for all errors raised by the Taph package.
+
+    Catch this to handle any Taph-specific failure.
+
+    """
 
 
+class ImmutableError(TaphError, AttributeError, TypeError):
+    """Raised when an attempt is made to mutate a frozen Taph object.
 
-class ImmutableError(TaphError, TypeError):
-    """Raise when an attempt is made to modify an immutable object or class.
+    Inherits from AttributeError and TypeError so standard library
+    functions and third-party tools that expect standard Python
+    mutation failures can catch it gracefully.
 
-    Inherits from TypeError to maintain semantic compatibility with standard
-    Python expectations for immutability violations (e.g., modifying a tuple).
+    """
+
+
+class RecordError(TaphError):
+    """Raised for structural or validation errors in Records.
+
+    Examples: Missing required slots, type validation failures.
+
+    """
+
+
+class ManifestError(TaphError):
+    """Raised for misuse of Manifests.
+
+    Examples: Attempting to instantiate a Manifest, defining illegal attributes.
+
+    """
+
+
+class FrozenDictError(TaphError, KeyError):
+    """Raised for specific mapping errors within FrozenDicts.
+
+    Inherits from KeyError to maintain standard Mapping behavior.
+
     """
 
