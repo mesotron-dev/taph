@@ -111,29 +111,36 @@ cache-dir = "./dist/.ruff_cache"
 
 [tool.ruff.lint]
 select = [
-    "I",    # import sorting
-    "PL",   # pylint deep analysis
-    "D",    # pydocstyle
-    "E",    # pycodestyle errors
-    "F",    # pyflakes
-    "W",    # pycodestyle warnings
-    "C90",  # mccabe complexity
-    "N",    # pep8-naming
-    "UP",   # pyupgrade
-    "ANN",  # type annotations
-    "ASYNC",# async-related checks
-    "S",    # bandit security checks
-    "B",    # bugbear
-    "A",    # builtins shadowing
-    "C4",   # comprehensions
-    "DTZ",  # timezone-related checks
-    "EM",   # error messages
-    "ISC",  # implicit string concatenation
-    "G",    # logging format
-    "PIE",  # misc. linting
-    "T20",  # print statements
-    "PYI",  # stub files
-    "PT",   # pytest-related
+    "A",        # builtins no shadowing
+    "ANN",      # type annotations
+    "ARG",      # unused arguments → dead code / impure funcs
+    "ASYNC",    # async-related checks
+    "B", "B9",  # bugbear full
+    "C4",       # comprehensions
+    "C90",      # mccabe complexity
+    "D",        # pydocstyle
+    "DTZ",      # timezone-related checks
+    "E",        # pycodestyle errors
+    "EM",       # error messages
+    "ERA",      # no commented-out code
+    "F",        # pyflakes
+    "G",        # logging format
+    "I",        # import sorting
+    "ISC",      # implicit string concatenation
+    "LOG",      # modern logging format
+    "N",        # pep8-naming
+    "PIE",      # misc. linting
+    "PTH",      # pathlib preference
+    "PYI",      # stub files
+    "PL",       # pylint deep analysis
+    "PT",       # pytest-related
+    "RET",      # consistent returns
+    "RUF",      # ruff-specific improvements
+    "S",        # bandit security checks
+    "T20",      # print statements
+    "TCH",      # type-checking guards
+    "UP",       # pyupgrade
+    "W",        # pycodestyle warnings
 ]
 
 ignore = [
