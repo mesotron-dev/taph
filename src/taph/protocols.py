@@ -1,9 +1,15 @@
-"""The Taph library’s immutability protocols.
+"""The Taph library's immutability protocols.
 
-The taph.protocols module defines the abstract protocols that allow Taph's
-freezing mechanism to interact with custom objects in a decoupled,
-standards-compliant way. It provides the `Freezable` protocol for objects to
-advertise their own immutable conversion logic.
+This module defines abstract protocols that enable decoupled,
+standards-compliant freezing and immutability behaviors in Taph. The key
+protocols are:
+
+- `Freezable`: for custom objects to control their own immutable conversion
+- `Freeze`: type for the freezing function itself (for dependency injection)
+- `Immutable`: marker for objects that cache a cryptographic content digest
+
+These protocols support deep immutability in Records, Manifests, and frozen
+mappings without tight coupling or inheritance requirements.
 
 """
 from typing import Protocol, runtime_checkable
@@ -11,25 +17,25 @@ from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class Freezable(Protocol):
-    """A protocol for objects that can be explicitly frozen.
+    """Protocol for objects that to provide an immutable ("frozen") version.
 
     The Freezable protocol allows custom classes to define their own logic for
     creating an immutable "frozen" version of themselves. When an object
-    implementing this protocol is passed to `taph.freeze`, the `__freeze__`
+    implementing this protocol is passed to `taph.freeze`, the `__freeze__()`
     method is called, and its return value is used as the immutable
     representation.
 
-    This protocol is particularly useful for complex objects that may contain
-    transient state (e.g., database connections, open files) that should be
-    excluded from the frozen snapshot. When designing the immutable
-    representation, use this quick checklist to identify transient or mutable
-    internals that typically need to be skipped:
+    This protocol is useful for complex objects that may contain transient, or
+    mutable, state (e.g., database connections, open files) that should be
+    excluded from the snapshots or hashing.
 
-        - Open file streams or sockets
+    When designing the immutable representation, use this quick checklist to
+    identify transient or mutable internals that typically need to be skipped:
 
-        - Cached properties or lazily evaluated attributes
-
-        - In-memory buffers, queues, or ongoing transactions
+    - Exclude open file streams, sockets, connections, locks, or threads
+    - Drop lazy, or cached, properties that can be recomputed
+    - Remove in-memory buffers, queues, or transaction state
+    - Ensure the returned object is deeply immutable & hashable
 
     Considering these elements helps prevent subtle bugs and ensures that only
     essential, truly immutable data is preserved.
@@ -38,29 +44,30 @@ class Freezable(Protocol):
     checks, allowing `taph.freeze` to efficiently detect if an object supports
     this protocol without relying on inheritance.
 
+    The `@runtime_checkable` decorator allows `isinstance(obj, Freezable)`.
+
     Example:
         Custom config object, minus live connections.
 
         A class implementing the Freezable protocol to control its immutable
-        representation::
+        representation:
 
-            class DatabaseConfig:
-                def __init__(self, host: str, port: int):
-                    self.host = host
-                    self.port = port
-                    self._connection = None  # Internal, mutable state
-
-                def __freeze__(self) -> 'DatabaseConfig':
-                    # Returns a new, clean instance without the connection.
-                    return DatabaseConfig(self.host, self.port)
-
-            config = DatabaseConfig("localhost", 5432)
-            frozen_config = taph.freeze(config)
+        >>> class DatabaseConfig:
+        ...     def __init__(self, host: str, port: int):
+        ...         self.host = host
+        ...         self.port = port
+        ...         self._connection = None  # transient
+        ...
+        ...     def __freeze__(self) -> 'DatabaseConfig':
+        ...         return DatabaseConfig(self.host, self.port)
+        ...
+        >>> config = DatabaseConfig("localhost", 5432)
+        >>> frozen = taph.freeze(config)  # calls __freeze__ internally
 
     """
 
     def __freeze__(self) -> object:
-        """Return an immutable representation of the object.
+        """Return a new deeply immutable representation of this object.
 
         This method should return a new object that is guaranteed to be
         immutable. It is responsible for handling all internal state to produce
@@ -113,15 +120,35 @@ class Freeze(Protocol):
 
 @runtime_checkable
 class Immutable(Protocol):
-    """A protocol for objects that cache their own cryptographic digest.
+    """Protocol for immutable objects with their own cryptographic digest.
 
-    bytes: The raw binary digest (e.g., BLAKE2b 16 byte digest).
+    Objects conforming to this protocol guarantee:
+    - Deep immutability (no attribute mutation after creation)
+    - A constant, content-based BLAKE2b digest stored in `__digest__` (bytes)
+    - String representations via `fingerprint` (base64url) and `hexdigest`
 
-    Contract:
-        1. The returned bytes MUST represent the BLAKE2b digest of the
-           object's content.
-        2. The value MUST be constant for the lifetime of the object.
-        3. The object MUST be deeply immutable.
+    The digest MUST:
+    1. Be computed only from the object's semantically meaningful content
+    2. Remain identical for equal objects (hash stability)
+    3. Be constant for the object's lifetime
+
+    This protocol is used by `Record` instances, `Manifest` classes, and
+    `FrozenDict` instances in Taph to enable fast content-based hashing and
+    equality.
+
+    The `@runtime_checkable` decorator supports `isinstance(obj, Immutable)`.
+
+    Example:
+        >>> class Point(Immutable):
+        ...     __digest__: bytes
+        ...     x: float
+        ...     y: float
+        ...
+        ...     @property
+        ...     def fingerprint(self) -> str: ...
+        ...
+        >>> p = Point(x=1.0, y=2.0)  # __digest__ computed at init
+        >>> isinstance(p, Immutable)  # True
 
     """
 
@@ -132,18 +159,20 @@ class Immutable(Protocol):
     def fingerprint(self) -> str:
         """Return the Base64 URL-safe string without padding.
 
+        This is suitable for filenames, URLs, cache keys, etc.
+
         Returns:
-            str: The Base64 URL-safe string stripped of padding.
+            str: Compact, safe string representation of the content digest
 
         """
         ...
 
     @property
     def hexdigest(self) -> str:
-        """Return the a hexadecimal string.
+        """Return the hexadecimal (lowercase) representation of the digest.
 
         Returns:
-            str: A hexadecimal string.
+            str: 32 character hex string for BLAKE2b 16-byte digest.
 
         """
         ...
