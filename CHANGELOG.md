@@ -19,9 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update exceptions module with new class names
 - Update protocols module with the Immutable protocol
 - Update taph.__init__ module with new names
-- Update ruff v0.15.2 -> v0.15.04
+- Update ruff v0.15.2 -> v0.15.4
 - Update pyproject.tool.ruff.lint with more coverage and sorted list
 - Update taph.protocols doc strings
+- Update max statements to a more lenient 20 in pyproject.toml ruff lint
+- Update ruff v0.15.4 -> v0.15.7
+- Update coverage v7.13.4 -> v7.13.5
+- Update project lock file
 
 ### Fixed
 - minor doc fixes
