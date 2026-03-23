@@ -30,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - minor doc fixes
 
+### Refactored
+- Sorted  __all__ terms in the exceptions module
+- Minor code improvements and doc updates in the validation_tools module
 ### Removed
 - Refactored core module and refactored into new classes & modules 
 
