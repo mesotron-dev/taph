@@ -1,54 +1,54 @@
-"""The Validation Tools module provides utility functions for Taph.
+"""Validation utilities for slot names and canonical ordering.
 
-#TODO
+These helpers ensure safe and consistent __slots__ definitions for slotted
+immutable classes in Taph.
 
 """
 
 import keyword
-from collections.abc import Collection
+from typing import TYPE_CHECKING
 
-__all__: tuple[str, ...] = ('is_valid_slot', 'canonical_slots')
+if TYPE_CHECKING:
+    from collections.abc import Collection
+
+__all__: tuple[str, ...] = ('canonical_slots', 'is_valid_slot')
 
 
 def is_valid_slot(name: object) -> bool:
-    """Check if a name can be used as a __slots__ entry.
+    """Determine if a value is suitable as a __slots__ entry.
 
-    Requirements:
-        1. Must be a string.
-        2. Must be a valid Python identifier.
-        3. Must not be a Python keyword.
-        4. Must not start with underscore.
+    Valid slot names must:
+    - Be non-empty strings
+    - Be valid Python identifiers
+    - Not be Python keywords
+    - Not start with underscore (private/reserved)
 
     Args:
-        name(str): The string to validate.
+        name (str): Candidate slot name.
 
     Returns:
-        True if the string can be a slot name, False otherwise.
+        True if the name is valid for __slots__, False otherwise.
 
     """
-    if not isinstance(name, str):
-        return False
-    if len(name) == 0:
-        return False
-    if name.isspace():
-        return False
-    if keyword.iskeyword(name):
-        return False
-    if name.startswith('_'):
-        return False
-    return True
+    return (
+        isinstance(name, str)
+        and name.isidentifier()
+        and not keyword.iskeyword(name)
+        and not name.startswith('_')
+    )
 
 
 def canonical_slots(slots: Collection[str]) -> tuple[str, ...]:
-    """Return a sorted & canonical ordering of slots (strings).
+    """Sort and deduplicate a collection of slot names into a canonical tuple.
 
-    Enables consistent slot layout for FrozenDict, Namespace, & Immutable.
+    Ensure deterministic layout/order for hashing, equality, and manifest
+    generation.
 
     Args:
-        slots(str): A collection of valid strings for use in __slots__.
+        slots: Iterable of valid slot name strings.
 
     Returns:
-        A sorted tuple of strings for __slots__.
+        Sorted tuple of unique slot names.
 
     """
-    return tuple(sorted(slots))
+    return tuple(sorted(set(slots)))

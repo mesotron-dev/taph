@@ -1,11 +1,11 @@
 """Exceptions for the Taph library."""
 
 __all__ = (
-    'TaphError',
+    'FrozenDictError',
     'ImmutableError',
-    'RecordError',
     'ManifestError',
-    'FrozenDictError'
+    'RecordError',
+    'TaphError'
 )
 
 
