@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update ruff v0.15.4 -> v0.15.7
 - Update coverage v7.13.4 -> v7.13.5
 - Update project lock file
+- Update protocols module with thaw protocols
+- Update pygments v2.19.2 -> v2.20.0
+- Update ruff v0.15.7 -> v0.15.8
 
 ### Fixed
 - minor doc fixes
