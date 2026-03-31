@@ -176,3 +176,48 @@ class Immutable(Protocol):
 
         """
         ...
+
+
+@runtime_checkable
+class Thawable(Protocol):
+    """Protocol for frozen objects that can return a mutable copy.
+
+    The Thawable protocol allows custom immutable classes to define their own
+    logic for creating a mutable ("thawed") version of themselves. When passed
+    to `taph.thaw`, the `__thaw__()` method is called.
+
+    Example:
+        >>> class FrozenConfig(Thawable):
+        ...     def __thaw__(self) -> dict[str, object]:
+        ...         return {"host": self.host, "port": self.port}
+
+    """
+
+    def __thaw__(self) -> object:
+        """Return a mutable representation of this object.
+
+        Returns:
+            A mutable version of the object.
+
+        """
+        ...
+
+
+class Thaw(Protocol):
+    """A protocol representing a generic thawing function.
+
+    Defines the abstract type signature for a callable that conforms to the
+    behavior of `taph.tools.thaw`. Useful for dependency injection.
+    """
+
+    def __call__(self, obj: object) -> object:
+        """Thaw an immutable object, returning a mutable version.
+
+        Args:
+            obj: The object to thaw.
+
+        Returns:
+            The mutable representation of the object.
+
+        """
+        ...
