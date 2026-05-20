@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Defined is_valid_slot function for dynamic __slots__ creation.
 - Defined canonical_slots function for dynamic __slots__ creation.
 - Added the protocols module with Freeze and Freezable protocols.
+- Added ThawError to exceptions module.
 
 ### Changed
 - Update librt v0.8.0 -> v0.8.1 & uv.lock
@@ -44,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Refactored
 - Sorted  __all__ terms in the exceptions module
 - Minor code improvements and doc updates in the validation_tools module
+- max statements for ruff now 25
+
 ### Removed
 - Refactored core module and refactored into new classes & modules 
 

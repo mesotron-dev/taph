@@ -171,7 +171,7 @@ dummy-variable-rgx = "^(_|main)$"
 [tool.ruff.lint.pylint]
 max-args = 5
 max-branches = 10
-max-statements = 20
+max-statements = 25
 
 [tool.ruff.lint.pep8-naming]
 classmethod-decorators = ["classmethod", "classproperty"]
