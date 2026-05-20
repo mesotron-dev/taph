@@ -21,7 +21,7 @@ class TaphTypeConf(NamedTuple):
     abc: str = '_abc_'
     abc_methods: str = '__abstractmethods__'
     annotations: str = '__annotations__'
-    del_attr: str = '___delattr__'
+    del_attr: str = '__delattr__'
     set_attr: str = '__setattr__'
     init_attr: str = '__init__'
     slots: str = '__slots__'
