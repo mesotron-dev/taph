@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Defined canonical_slots function for dynamic __slots__ creation.
 - Added the protocols module with Freeze and Freezable protocols.
 - Added ThawError to exceptions module.
+- Added the config and test_config subpackages.
 
 ### Changed
 - Update librt v0.8.0 -> v0.8.1 & uv.lock
