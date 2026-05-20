@@ -16,7 +16,7 @@ from taph.tools.freeze_tools import freeze
 # ---------------------------------------------------------
 
 @pytest.fixture
-def user_record_cls():
+def user_record_cls() -> Record:
     """Returns a concrete Record subclass with strictly enforced slots."""
     class User(Record):
         __slots__ = ('user_id', 'email', 'is_active')
@@ -72,7 +72,7 @@ def user_manifest(sample_record) -> Manifest:
 # ---------------------------------------------------------
 
 @pytest.fixture
-def class_factory():
+def class_factory() -> Any:
     """Return a factory function to create dynamic Taph components.
 
     Used for testing metaclass validation (e.g., ensuring __slots__ enforcement).
@@ -84,7 +84,7 @@ def class_factory():
     return _create_record
 
 @pytest.fixture
-def namespace_fixture():
+def namespace_fixture() -> type:
     """Fixture for testing static Namespace containers."""
     from taph.meta.taph_meta import TaphType
 
@@ -100,6 +100,6 @@ def namespace_fixture():
 # ---------------------------------------------------------
 
 @pytest.fixture
-def benchmark_data():
+def benchmark_data() -> dict[str, int]:
     """Provides a large dataset for O(log N) bisection performance testing."""
     return {f"key_{i}": i for i in range(1000)}
