@@ -5,7 +5,8 @@ __all__ = (
     'ImmutableError',
     'ManifestError',
     'RecordError',
-    'TaphError'
+    'TaphError',
+    'ThawError',
 )
 
 
@@ -50,3 +51,10 @@ class FrozenDictError(TaphError, KeyError):
 
     """
 
+
+class ThawError(TaphError, TypeError):
+    """Raised for objects that are not recognized as thawable.
+
+    Inherits from TypeError to indicate standard type error behavior.
+
+    """
