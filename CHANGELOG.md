@@ -29,6 +29,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update protocols module with thaw protocols
 - Update pygments v2.19.2 -> v2.20.0
 - Update ruff v0.15.7 -> v0.15.8
+- Update uv.log + ast-serialize==0.5.0
+- Update coverage v7.13.5 -> v7.14.0
+- Update librt v0.8.1 -> v0.11.0
+- Update mypy v1.20.0 -> v2.1.0
+- Update packaging v26.0 -> v26.2
+- Update pathspec v1.0.4 -> v1.1.1
+- Update pytest v9.0.2 -> v9.0.3
+- Update ruff v0.15.9 -> v0.15.13
 
 ### Fixed
 - minor doc fixes
