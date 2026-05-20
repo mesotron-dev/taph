@@ -29,12 +29,12 @@ class TaphTypeConf(NamedTuple):
     qualname: str = '__qualname__'
     module: str = '__module__'
     # Generic exceptions
-    parameters = '__parameters__'
-    orig_bases = '__orig_bases__'
-    mro_entries = '__mro_entries__'
-    class_getitem = '__class_getitem__'
-    is_protocol = '_is_protocol'
-    init_subclass = '__init_subclass__'
+    parameters: str = '__parameters__'
+    orig_bases: str = '__orig_bases__'
+    mro_entries: str = '__mro_entries__'
+    class_getitem: str = '__class_getitem__'
+    is_protocol: str = '_is_protocol'
+    init_subclass: str = '__init_subclass__'
 
     def class_internals(self) -> tuple[str, ...]:
         """Return class internals to exclude from freezing."""
@@ -128,6 +128,7 @@ class ManifestTypeConf(NamedTuple):
     immutable: str = 'A Manifest is an immutable class.'
     match_args: str = '__match_args__'
     not_implemented: str = 'Manifests do not implement'
+    no_instance: str = 'A Manifest has no instances.'
 
     def clear(self) -> str:
         """Default clear error message."""
