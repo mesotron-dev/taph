@@ -12,6 +12,7 @@ These protocols support deep immutability in Records, Manifests, and frozen
 mappings without tight coupling or inheritance requirements.
 
 """
+
 from typing import Protocol, runtime_checkable
 
 
@@ -153,7 +154,6 @@ class Immutable(Protocol):
     """
 
     __digest__: bytes
-
 
     @property
     def fingerprint(self) -> str:
