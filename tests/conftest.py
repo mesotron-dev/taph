@@ -17,7 +17,7 @@ from taph.tools.freeze_tools import freeze
 
 @pytest.fixture
 def user_record_cls() -> Record:
-    """Returns a concrete Record subclass with strictly enforced slots."""
+    """Return a concrete Record subclass with strictly enforced slots."""
     class User(Record):
         __slots__ = ('user_id', 'email', 'is_active')
 
@@ -29,7 +29,7 @@ def user_record_cls() -> Record:
 
 @pytest.fixture
 def sample_record(user_record_cls) -> Record:
-    """Returns an instantiated, frozen Record."""
+    """Return an instantiated, frozen Record."""
     return user_record_cls(user_id=101, email="arch@taph.io", is_active=True)
 
 # ---------------------------------------------------------
@@ -38,13 +38,13 @@ def sample_record(user_record_cls) -> Record:
 
 @pytest.fixture
 def sample_frozen_dict() -> FrozenDict[str, int]:
-    """Returns a pre-populated FrozenDict using the fast-path constructor."""
+    """Return a pre-populated FrozenDict using the fast-path constructor."""
     data = {"alpha": 1, "beta": 2, "gamma": 3}
-    return FrozenDict.fromdict(data)
+    return FrozenDict(data)
 
 @pytest.fixture
 def nested_mutable_data() -> dict[str, Any]:
-    """Returns a deeply nested mutable structure for testing freeze()."""
+    """Return a deeply nested mutable structure for testing freeze()."""
     return {
         "metadata": {"version": 1, "tags": ["prod", "immutable"]},
         "records": [
@@ -59,13 +59,23 @@ def nested_mutable_data() -> dict[str, Any]:
 # ---------------------------------------------------------
 
 @pytest.fixture
-def user_manifest(sample_record) -> Manifest:
-    """Returns a Manifest containing multiple records."""
-    return Manifest([
-        sample_record,
-        # Create a second record of the same type
-        type(sample_record)(user_id=102, email="ops@taph.io", is_active=False)
-    ])
+def system_manifest() -> Manifest:
+    """Return a Manifest subclass."""
+    class SystemConfig(Manifest):
+        debug: bool = True
+        timeout: int = 90
+        version: str = '2.0.0'
+    return SystemConfig
+
+
+@pytest.fixture
+def user_manifest(sample_record, system_manifest) -> Manifest:
+    """Return a Manifest containing multiple records."""
+    class UserConf(Manifest):
+        user: Record = sample_record
+        config: Manifest = system_manifest
+    return UserConf
+
 
 # ---------------------------------------------------------
 # Meta/Constraint Fixtures
@@ -85,7 +95,7 @@ def class_factory() -> Any:
 
 @pytest.fixture
 def namespace_fixture() -> type:
-    """Fixture for testing static Namespace containers."""
+    """Return a fixture for testing static Namespace containers."""
     from taph.meta.taph_meta import TaphType
 
     class SystemConfig(metaclass=TaphType):
@@ -101,5 +111,5 @@ def namespace_fixture() -> type:
 
 @pytest.fixture
 def benchmark_data() -> dict[str, int]:
-    """Provides a large dataset for O(log N) bisection performance testing."""
+    """Provide a large dataset for O(log N) bisection performance testing."""
     return {f"key_{i}": i for i in range(1000)}
