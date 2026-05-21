@@ -1,6 +1,10 @@
 """The RecordType class module."""
-
 import textwrap
+from annotationlib import (
+    Format,
+    call_annotate_function,
+    get_annotate_from_class_namespace,
+)
 from typing import cast
 
 from taph.config.meta_conf import record_type_conf as record
@@ -33,7 +37,6 @@ def _compile_init(
             args.append(f)
 
     body: list[str] = []
-
     for f in fields:
         body.append(f'frozen_{f} = freeze({f})')
         body.append(f'object.__setattr__(self, {f!r}, frozen_{f})')
@@ -45,9 +48,7 @@ def _compile_init(
 
     content_digest = f'({name!r}, {items_csv})'
     body.append(
-        'object.__setattr__('
-        f'self, {record.digest!r}, mk_digest({content_digest})'
-        ')'
+        f'object.__setattr__(self, "__digest__", mk_digest({content_digest}))'
     )
 
     source = f'def __init__({", ".join(args)}):\n'
@@ -57,8 +58,9 @@ def _compile_init(
         source += '    pass\n'
 
     locals_dict: dict[str, object] = {}
-    exec(source, exec_globals, locals_dict)  # noqa: S102
-    return locals_dict.get(record.init)
+    exec(source, exec_globals, locals_dict) # noqa: S102
+
+    return locals_dict.get('__init__')
 
 
 def _namespace_guard(
@@ -170,6 +172,18 @@ def _check_mro_fields(
     return record_fields, record_annotations
 
 
+def _get_annotations(namespace: dict[str, object]) -> dict[str, object]:
+    """Extract type annotations from a class namespace dict."""
+    try:
+        ann_func = get_annotate_from_class_namespace(namespace)
+        if ann_func is not None:
+            return call_annotate_function(ann_func, format=Format.VALUE)
+    except ImportError:
+        pass
+    return cast(
+        'dict[str, object]', namespace.get(record.annotations, {})
+    )
+
 class RecordType(TaphType):
     """Metaclass for immutable instance container for Records."""
 
@@ -182,9 +196,8 @@ class RecordType(TaphType):
         namespace: dict[str, object],
     ) -> type:
         """Compile a new Record class."""
-        annotations: dict[str, object] = cast(
-            'dict[str, object]', namespace.get(record.annotations, {})
-        )
+        # Look forward for annotations
+        annotations: dict[str, object] = _get_annotations(namespace)
 
         # Typed Attribute Guard
         _namespace_guard(name, annotations, namespace)
@@ -205,7 +218,7 @@ class RecordType(TaphType):
         init: object = _compile_init(name, record_fields, default_fields)
 
         # Prepare Record namespace
-        namespace[record.init] = init
+        namespace['__init__'] = init
         namespace[record.annotations] = record_annotations
         namespace[record.slots] = record_slots
 
@@ -217,4 +230,10 @@ class RecordType(TaphType):
         namespace[record.set_attr] = TaphType._block_setattr
         namespace[record.del_attr] = TaphType._block_delattr
 
-        return super().__new__(cls, name, bases, namespace)
+        # Create the class
+        new_class = super().__new__(cls, name, bases, namespace)
+
+        # Force it again after class creation
+        type.__setattr__(new_class, '__init__', init)
+
+        return new_class
