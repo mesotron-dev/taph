@@ -242,3 +242,15 @@ def test_snapshot() -> None:
 
     assert isinstance(snap["mutable_dict"], FrozenDict)
     assert snap["mutable_dict"]["a"] == "A"
+
+
+def test_snapshot_with_dict() -> None:
+    """Verify snapshot processes public state of standard __dict__ classes."""
+    class DictTarget:
+        def __init__(self) -> None:
+            self.a = 1
+            self._b = 2  # Private, should be skipped
+            self.c = lambda: None  # Callable, should be skipped
+
+    snap = snapshot(DictTarget())
+    assert snap == FrozenDict({"a": 1})
