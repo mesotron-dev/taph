@@ -86,6 +86,10 @@ class ManifestType(TaphType):
 
         return super().__new__(mcs, name, bases, namespace)
 
+    def __call__(self, *args: object, **kwargs: object) -> object:
+        """Prevent instantiation of Manifest classes."""
+        raise AttributeError(manifest.no_instance)
+
     def __contains__(self, key: str) -> bool:
         """#todo."""
         return key in getattr(self, manifest.keys, ())
