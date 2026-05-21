@@ -117,8 +117,8 @@ def namespace_skip(value: object, key: str = '') -> bool:
 
     if (
         isinstance(value, ATOMS.func)
-        or callable(value)
-        and not isinstance(value, type)
+        or (callable(value)
+        and not isinstance(value, type))
     ):
         return True
 

@@ -86,7 +86,7 @@ class ManifestType(TaphType):
 
         return super().__new__(mcs, name, bases, namespace)
 
-    def __call__(self, *args: object, **kwargs: object) -> object:
+    def __call__(self, *args: object, **kwargs: object) -> object: # noqa: ARG002
         """Prevent instantiation of Manifest classes."""
         raise AttributeError(manifest.no_instance)
 
