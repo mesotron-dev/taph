@@ -260,8 +260,5 @@ def _(data: decimal.Decimal, hasher: blake2b) -> None:
 @_feed_digest.register(fractions.Fraction)
 def _(data: fractions.Fraction, hasher: blake2b) -> None:
     hasher.update(struct.pack(code.UNSIGNED_BYTE, mark.FRACTION))
-    try:
-        _feed_int_ratio(data.as_integer_ratio(), hasher)
-    except (OverflowError, ValueError):
-        _check_number(data, hasher)
+    _feed_int_ratio(data.as_integer_ratio(), hasher)
     hasher.update(struct.pack(code.UNSIGNED_BYTE, mark.END))
