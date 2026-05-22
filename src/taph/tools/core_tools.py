@@ -71,10 +71,6 @@ def is_immutable(value: object) -> bool:
     if is_atom(value) or isinstance(value, Immutable):
         return True
 
-    from taph.frozen_dict import FrozenDict  # noqa: PLC0415
-    if isinstance(value, FrozenDict):
-        return True
-
     return False
 
 
