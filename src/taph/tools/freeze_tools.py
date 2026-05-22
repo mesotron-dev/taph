@@ -107,9 +107,6 @@ def _(tuple_object: tuple[object]) -> tuple[object, ...]:
 def _(mapping_object: Mapping[object, object]) -> FrozenDict[object, object]:
     """Freeze a dict into a FrozenDict."""
     from taph.frozen_dict import FrozenDict  # noqa: PLC0415
-
-    if isinstance(mapping_object, FrozenDict):
-        return mapping_object
     return FrozenDict(mapping_object)
 
 
