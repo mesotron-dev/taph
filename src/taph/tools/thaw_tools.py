@@ -101,7 +101,7 @@ def _(data: frozenset[object]) -> set[object]:
     Recursively thaws all values.
 
     """
-    return {thaw(item) for item in data}
+    return set(map(thaw, data))
 
 
 @_thaw.register(list)
