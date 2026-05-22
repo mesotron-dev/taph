@@ -284,3 +284,45 @@ def test_custom_digest_size_override() -> None:
 
     # Custom digest size constraints (e.g., 32-byte hash)
     assert len(mk_digest(100, digest_size=32)) == 32
+
+
+def test_hash_complex_normal() -> None:
+    """Validate hashing of standard, valid complex numbers.
+
+    This ensures the final non-exception lines (such as mark.END) of the
+    complex register are fully covered under non-error pathways.
+    """
+    c1 = complex(1.5, -2.5)
+    c2 = complex(1.5, -2.5)
+    c3 = complex(3.0, 4.0)
+
+    assert mk_digest(c1) == mk_digest(c2)
+    assert mk_digest(c1) != mk_digest(c3)
+
+
+def test_hash_infinity_nan_values() -> None:
+    """Trigger both ValueError and OverflowError fallback pathways in numeric registers.
+
+    This covers the exception handler blocks in float and complex registrars:
+      - float('inf') -> OverflowError under float register
+      - float('nan') -> ValueError under float register
+      - complex(inf, 1) -> OverflowError under complex register
+      - complex(1, nan) -> ValueError under complex register
+    """
+    # 1. Float Exception Pathways
+    with pytest.raises(TypeError, match='is not hashable'):
+        mk_digest(float('inf'))
+
+    with pytest.raises(TypeError, match='is not hashable'):
+        mk_digest(float('nan'))
+
+    # 2. Complex Exception Pathways
+    with pytest.raises(TypeError, match='is not hashable'):
+        mk_digest(complex(float('inf'), 1.0))
+
+    with pytest.raises(TypeError, match='is not hashable'):
+        mk_digest(complex(1.0, float('nan')))
+
+    # 3. Decimal Exception Pathways
+    with pytest.raises(TypeError, match='is not hashable'):
+        mk_digest(decimal.Decimal('Infinity'))

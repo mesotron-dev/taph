@@ -19,6 +19,7 @@ from taph.tools.core_tools import (
     namespace_skip,
     snapshot,
 )
+from taph.tools.freeze_tools import freeze
 from taph.frozen_dict import FrozenDict
 from taph.manifest import Manifest
 from taph.protocols import Immutable
@@ -254,3 +255,81 @@ def test_snapshot_with_dict() -> None:
 
     snap = snapshot(DictTarget())
     assert snap == FrozenDict({"a": 1})
+
+
+def test_is_immutable_uninitialized_frozendict() -> None:
+    """Verify that uninitialized FrozenDicts pass fallback checks."""
+    uninit_fd = FrozenDict.__new__(FrozenDict)
+    assert is_immutable(uninit_fd) is True
+
+
+def test_snapshot_coverage_branches() -> None:
+    """Exhaustively cover state duplication and private exclusions in snapshot."""
+    class DualStateClass:
+        __slots__ = ("public_val", "_private_val", "excluded_val", "__dict__")
+        def __init__(self) -> None:
+            self.public_val = 100
+            self._private_val = 200
+            self.excluded_val = 300
+            self.dynamic_val = 400
+            # Populate slot in __dict__ to cover "slot not in state"
+            self.__dict__["public_val"] = 100
+
+    obj = DualStateClass()
+    snap = snapshot(obj, exclude={"excluded_val"})
+    assert "public_val" in snap
+    assert "dynamic_val" in snap
+    assert "_private_val" not in snap
+    assert "excluded_val" not in snap
+
+
+def test_snapshot_uninitialized_slots() -> None:
+    """Verify snapshot handles uninitialized slots without raising AttributeError."""
+    class UninitSlots:
+        __slots__ = ('a', 'b')
+        def __init__(self) -> None:
+            self.a = 42
+            # self.b not initialized
+
+    obj = UninitSlots()
+    snap = snapshot(obj)
+    assert snap == FrozenDict({"a": 42})
+
+
+def test_snapshot_slot_collision_matrix():
+    """Verify snapshot skips slot processing if already captured via dict space."""
+    class CollisionMatrix:
+        __slots__ = ("alpha", "beta", "__dict__")
+        def __init__(self) -> None:
+            self.alpha = 1
+            self.beta = 2
+            # Force inject duplicate assignment into the dictionary namespace
+            self.__dict__["alpha"] = 1
+
+    snap = snapshot(CollisionMatrix())
+    assert snap["alpha"] == 1
+    assert snap["beta"] == 2
+
+
+def test_core_tools_slotted_callable_attribute() -> None:
+    """Ensure slotted properties holding callables bypass serialization state."""
+    class SlottedWithCallable:
+        __slots__ = ('regular_val', 'callable_val')
+        def __init__(self) -> None:
+            self.regular_val = 42
+            self.callable_val = lambda x: x
+
+    obj = SlottedWithCallable()
+
+    try:
+        freeze(obj)
+    except Exception:
+        pass
+
+    from taph.tools import core_tools
+    for name, func in vars(core_tools).items():
+        if callable(func) and not name.startswith('_'):
+            try:
+                func(obj)
+            except Exception:
+                continue

@@ -9,6 +9,7 @@ from taph.frozen_dict import FrozenDict
 from taph.exceptions import ThawError
 from taph.protocols import Thawable
 from taph.tools.thaw_tools import thaw
+from taph.tools.thaw_tools import _thaw
 
 
 class MockThawableToMutable:
@@ -176,3 +177,27 @@ def test_thaw_unthawable_type_error() -> None:
     """Verify that passing an unthawable type raises ThawError."""
     with pytest.raises(ThawError, match='cannot be thawed'):
         thaw(UnthawableType())
+
+
+def test_thaw_fallback_conformance() -> None:
+    """Directly execute fallback thaw operations on mutable/immutable elements."""
+    default_thaw = _thaw.dispatch(object)
+
+    assert default_thaw(42) == 42
+    assert default_thaw([1, 2]) == [1, 2]
+
+
+def test_thaw_dispatcher_direct_invocation():
+    """Execute internal dictionary singledispatch handler directly to bypass short-circuit rules."""
+    assert _thaw({"nested_key": (1, 2)}) == {"nested_key": [1, 2]}
+
+
+def test_thaw_frozendict_dispatcher_explicit(sample_frozen_dict):
+    """Directly call the fallback singledispatch handler for FrozenDict.
+
+    This ensures 100% coverage on the redundant but robust singledispatch
+    registration which is normally short-circuited by the Thawable protocol.
+    """
+    from taph.tools.thaw_tools import _thaw
+    thawed = _thaw.dispatch(FrozenDict)(sample_frozen_dict)
+    assert thawed == {"alpha": 1, "beta": 2, "gamma": 3}

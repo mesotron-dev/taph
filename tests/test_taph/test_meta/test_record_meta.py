@@ -1,7 +1,7 @@
 """Tests for the taph.meta.record_meta module (RecordType)."""
 
 from __future__ import annotations
-# lazy eval in 3.14 annotations requires from future
+from typing import ClassVar
 import pytest
 from taph.record import Record
 from taph.meta.record_meta import (
@@ -12,6 +12,7 @@ from taph.meta.record_meta import (
     _check_mro_fields,
 )
 from taph.exceptions import ImmutableError
+import taph.meta.record_meta
 
 class ParentRecord(Record):
     __slots__ = ("parent_id", "parent_name", "__digest__")
@@ -130,3 +131,77 @@ def test_record_type_new_sealing() -> None:
 
     with pytest.raises(ImmutableError):
         del instance.id
+
+
+def test_record_meta_annotationlib_conformance(monkeypatch) -> None:
+    """Mock annotationlib to force compile routes during class generation."""
+    monkeypatch.setattr(
+        taph.meta.record_meta,
+        "get_annotate_from_class_namespace",
+        lambda ns: lambda: None
+    )
+    monkeypatch.setattr(
+        taph.meta.record_meta,
+        "call_annotate_function",
+        lambda func, format: {"id": int}
+    )
+
+    class MockRecord(Record):
+        __slots__ = ("id", "__digest__")
+        id: int
+
+    assert MockRecord.__slots__ == ("id", "__digest__")
+
+
+def test_namespace_guard_with_annotated_default() -> None:
+    """Verify guard when a key is present in both annotations and namespace (key not in annotations is False)."""
+    annotations = {"status": str}
+    namespace = {
+        "status": "pending",
+        "__slots__": (),
+    }
+    _namespace_guard("DefaultTest", annotations, namespace)
+
+
+def test_check_mro_fields_exhaustive() -> None:
+    """Exhaustively cover all partial branch conditions in _check_mro_fields."""
+    class DummyMeta(type):
+        pass
+
+    class BaseA(metaclass=DummyMeta):
+        __slots__ = ("shared_field", "digest")
+        __annotations__ = {"shared_field": int}
+
+    class BaseB(metaclass=DummyMeta):
+        __slots__ = ("shared_field", "digest")
+        __annotations__ = {"shared_field": int}
+
+    bases = (object, BaseA, BaseB)
+    fields = ["shared_field", "new_field"]
+    annotations = {"shared_field": int, "new_field": str}
+
+    merged_fields, merged_annotations = _check_mro_fields(
+        DummyMeta, bases, fields, annotations
+    )
+
+    assert merged_fields == ["shared_field", "new_field"]
+    assert merged_annotations == {"shared_field": int, "new_field": str}
+
+
+def test_get_annotations_import_error_fallback(monkeypatch) -> None:
+    """Force ImportError within _get_annotations to cover the except block."""
+    import taph.meta.record_meta
+
+    def mock_raise_importerror(*args: object, **kwargs: object) -> None:
+        raise ImportError("Simulated annotationlib failure")
+
+    monkeypatch.setattr(
+        taph.meta.record_meta,
+        "get_annotate_from_class_namespace",
+        mock_raise_importerror
+    )
+
+    # This executes get_annotate_from_class_namespace, raises ImportError,
+    # passes the exception handler, and falls back to pulling annotations from dict.
+    res = taph.meta.record_meta._get_annotations({"__annotations__": {"id": int}})
+    assert res == {"id": int}
