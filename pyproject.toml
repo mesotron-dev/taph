@@ -273,15 +273,19 @@ show_missing = true
 skip_covered = false
 precision = 2
 exclude_lines = [
+    # Standard exclusions
     "raise AssertionError",
     "raise NotImplementedError",
     "pragma: no cover",
     "def __repr__",
     "if __name__ == .__main__.:",
-    "raise NotImplementedError",
     "pass",
     "@(abc\\.)?abstractmethod",
     "^\\s*pass\\s*$",
+    "^\\s*@overload\\s*$",
+    "if TYPE_CHECKING:",
+    "^\\s*\\.\\.\\.\\s*$",
+    "raise TypeError\\(error_msg\\.type_error.*",
 ]
 
 [tool.coverage.html]
