@@ -1,3 +1,4 @@
+"""Configuration subpackage for the Taph package."""
 from taph.config.core_conf import ATOMS
 from taph.config.meta_conf import (
     frozen_dict_conf,

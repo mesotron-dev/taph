@@ -1,7 +1,6 @@
 """Taph tools subpackage.
 
-Provide the modules for freezing, creating deterministic content hash, and
-namespace parsing.
+Modules for deep freezing, thawing, and cryptographic content hashing.
 """
 
 from taph.tools.core_tools import (
@@ -14,6 +13,7 @@ from taph.tools.core_tools import (
 )
 from taph.tools.freeze_tools import freeze
 from taph.tools.hash_tools import content_id, hash_id, hex_id, mk_digest
+from taph.tools.thaw_tools import thaw
 from taph.tools.validation_tools import canonical_slots, is_valid_slot
 
 __all__ = (
@@ -30,4 +30,5 @@ __all__ = (
     'mk_digest',
     'namespace_skip',
     'snapshot',
+    'thaw',
 )
