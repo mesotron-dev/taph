@@ -57,9 +57,9 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install Test Dependencies
-        run: uv sync --group test
+        run: uv sync --group test --python ${{ matrix.python-version }}
 
       - name: Run Tests with Coverage
         run: |
-          uv run --group test coverage run -m pytest && \
-          uv run --group test coverage report
+          PYTHONPATH=src uv run --group test coverage run -m pytest && \
+          PYTHONPATH=src uv run --group test coverage report
