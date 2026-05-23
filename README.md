@@ -5,166 +5,165 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/mesotron-dev/taph/full-coverage.yml?style=flat-square)](https://github.com/mesotron-dev/taph/actions)
 [![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg?style=flat-square)](https://github.com/mesotron-dev/taph/actions)
 
-Taph is a minimalist Python package for enforcing deep, zero-overhead immutability. Taph creates objects that are guaranteed to be unchangeable, enabling predictable, pure functional programming patterns in Python.
+**Taph** makes it easy to create **deeply immutable** objects in Python with zero runtime overhead and strong content-based hashing. Taph creates objects that are guaranteed to be unchangeable, enabling predictable, pure functional programming patterns in Python.
 
 Taph's core value proposition: **Fast & Reliable Immutability.**
 
 ---
 
-## Key Features
+## Core Features
 
-*   **Zero-Overhead:** Achieves immutability using Python's Method Resolution Order (MRO) and metaclass injection.
-*   **Memory Efficiency:** Enforces `__slots__` usage, eliminating the memory footprint of `__dict__` for every instance.
-*   **Deep Immutability:** Recursively transforms nested mutable structures (like `list`, `dict`) into immutable counterparts (`tuple`, `MappingProxyType`) during class creation.
-*   **Zero Dependencies:** A single-file core module built using the Python Standard Library.
+-   **Zero-Overhead:** Achieves immutability using Python's Method Resolution Order (MRO) and metaclass injection.
+-   **Memory Efficiency:** Enforces `__slots__` usage, eliminating the memory footprint of `__dict__` for every instance.
+-   **Deep Immutability:** Recursively transforms nested mutable structures (like `list`, `dict`) into immutable counterparts (`tuple`, `MappingProxyType`) during class creation.
+-   **Zero Dependencies:** A single-file core module built using the Python Standard Library.
+- **Cryptographic Stability**: Every object gets a deterministic BLAKE2b content digest.
+- **Simple & Fast**: Clean APIs with excellent ergonomics.    
+
+## Usage
+
+Taph provides 3 classes of immutable objects: 
+
+- `Record` for instantiable data objects
+- `Manifest` for static constants.
+- `FrozenDict` for immutable mappings.
+
+### `FrozenDict` — Deeply Immutable Mapping
+
+```python
+from taph import FrozenDict, freeze
+
+# Create a deeply frozen, sorted dictionary
+data = FrozenDict({"beta": 2, "alpha": 1, "gamma": 3})
+
+# Lookup is executed via O(log N) bisection on raw byte digests
+assert data["alpha"] == 1
+
+# Underlying arrays are perfectly aligned and sorted
+assert list(data) == ["alpha", "beta", "gamma"]
+
+# Safe merging operations return new frozen instances
+updated_data = data | {"delta": 4}
+assert isinstance(updated_data, FrozenDict)
+```
+
+### `Record` — Immutable Data Objects
+
+```python
+from taph import Record
+
+class User(Record):
+    __slots__ = ('user_id', 'username', 'email')
+    
+    user_id: int
+    username: str
+    email: str
+
+user = User(user_id=101, username="arch", email="arch@taph.io")
+
+print(user.username)
+print(user.hexdigest)      # stable content hash
+```
+
+Supports `keys()`, `items()`, `values()`, `get()`, and `__replace__()` for safe updates.
+
+### `Manifest` — Static Constants
+
+```python
+from taph import Manifest
+
+class Config(Manifest):
+    __slots__ = ()
+    VERSION = "2.1.0"
+    DEBUG = False
+    TIMEOUT = 30
+```
+
+Non-instantiable. Perfect for configuration and constants.
+
+### `FrozenDict` — Immutable Mapping
+
+```python
+from taph import FrozenDict, freeze
+
+data = freeze({"a": [1, 2], "b": {"nested": True}})
+assert isinstance(data["b"], FrozenDict)
+```
+
+---
+
+## Tools
+
+```python
+from taph import freeze, thaw
+
+# Deep freeze any structure
+immutable = freeze({"items": [1, 2, 3]})
+
+# Mutable copy
+mutable = thaw(immutable)
+```
+
+---
+
+## Functional Style
+
+Taph makes functional programming in Python safer and more predictable.
+
+### 1. Pure Functions with `Record`
+
+```python
+from taph import Record
+
+class User(Record):
+    __slots__ = ('user_id', 'name', 'is_active')
+    
+    user_id: int
+    name: str
+    is_active: bool = True
+
+# Pure function - no side effects
+def deactivate_user(user: User) -> User:
+    # Returns a new Record with updated value (copy-on-write)
+    return user.__replace__(is_active=False)
+
+# Usage
+user1 = User(user_id=101, name='Alice', is_active=True)
+user2 = deactivate_user(user1)
+
+print(user1.is_active)   # → True
+print(user2.is_active)   # → False
+assert user1 is not user2
+```
+
+### 2. Stateless Systems with `Manifest`
+
+```python
+from taph import Manifest
+
+class Config(Manifest):
+    __slots__ = ()
+    TIMEOUT_SECONDS = 30
+    SUPPORTED_METHODS = ('GET', 'POST')
+    API_VERSION = 'v2.1'
+
+def is_request_valid(request_duration: int, method: str) -> bool:
+    # Totally predictable - depends only on inputs + immutable constants
+    if method not in Config.SUPPORTED_METHODS:
+        return False
+    return request_duration < Config.TIMEOUT_SECONDS
+
+# Attempting to mutate constants will raise an error
+# Config.TIMEOUT_SECONDS = 1   # Raises ImmutableError
+```
+
+---
 
 ## Installation
 
 ```bash
 pip install taph
 ```
-
-## Usage
-
-Taph provides two classes of immutable objects: 
-
-- `Immutable` for instantiable data objects
-- `Namespace` for static constants.
-
-### 1. The `Immutable` Base Class
-
-Use `Immutable` for creating value objects (data structures) whose state must never change after initialization.
-
-**Contract:** Subclasses **must** define `__slots__`.
-
-```python
-from taph import Immutable, ImmutableError
-
-class Point(Immutable):
-    __slots__ = ('x', 'y')
-
-    def __init__(self, x: int, y: int):
-        # IMPORTANT: Use super().__setattr__ for initialization!
-        super().__setattr__('x', x)
-        super().__setattr__('y', y)
-
-p = Point(10, 20)
-
-# Fails (ImmutableError)
-try:
-    p.x = 30
-except ImmutableError as e:
-    print(f"Success: {e}")
-
-# Fails (ImmutableError)
-try:
-    del p.y
-except ImmutableError as e:
-    print(f"Success: {e}")
-```
-
-### 2. The `Namespace` Static Container
-
-Use `Namespace` for static configuration, constants, or utility groups. `Namespace` classes are **non-instantiable** and their class attributes are ** frozen** at creation time.
-
-```python
-from taph import Namespace, ImmutableError
-
-class AppConfig(Namespace):
-    __slots__ = () # Required, must be empty
-    VERSION = "1.0.0"
-    HOSTS = ["server-a", "server-b"] # Deeply frozen into a tuple
-
-# Access attributes directly
-print(f"Version: {AppConfig.VERSION}")
-print(f"Hosts Type: {type(AppConfig.HOSTS)}") # <class 'tuple'>
-
-# Fails (ImmutableError) - Cannot modify class attributes
-try:
-    AppConfig.TIMEOUT = 60
-except ImmutableError as e:
-    print(f"Success: {e}")
-
-# Fails (ImmutableError) - Cannot instantiate
-try:
-    _ = AppConfig()
-except ImmutableError as e:
-    print(f"Success: {e}")
-```
-
-## Deep Freezing
-
-Taph's `freeze` utility ensures deep immutability by recursively converting mutable collections during class construction:
-
-| Mutable Type | Taph Equivalent |
-| :--- | :--- |
-| `list` | `tuple` |
-| `set` | `frozenset` |
-| `dict` | `types.MappingProxyType` |
-
-Custom objects must inherit from `Immutable` or `Namespace`, or `freeze` will raise an `ImmutableError` at class definition time.
-
-## Functional Style
-
-Taph provides a solid foundation for functional programming in Python:
-
-### 1.  **Pure Functions:** 
-
-Pass Taph `Immutable` objects into functions with confidence that no side effects can occur.
-
-```python
-from taph import Immutable
-
-class User(Immutable):
-    __slots__ = ('user_id', 'name', 'is_active')
-
-    def __init__(self, user_id: int, name: str, is_active: bool = True):
-        super().__setattr__('user_id', user_id)
-        super().__setattr__('name', name)
-        super().__setattr__('is_active', is_active)
-
-# PURE FUNCTION: No side effects. Takes a User, returns a NEW User.
-def deactivate_user(user: User) -> User:
-    # This is the "copy-on-write" pattern.
-    return User(
-        user_id=user.user_id,
-        name=user.name,
-        is_active=False
-    )
-
-# --- Caller ---
-user1 = User(101, 'Alice')
-user2 = deactivate_user(user1)
-
-# The original object is completely untouched. The system is predictable.
-print(user1.is_active)  # -> True
-print(user2.is_active)  # -> False
-assert user1 is not user2
-```
-
-### 2.  **Stateless Systems:** 
-
-Use `Namespace` to provide verifiably safe, global constants that cannot be accidentally mutated by any function.
-
-```python
-from taph import Namespace
-
-class Config(Namespace):
-    __slots__ = ()
-    TIMEOUT_SECONDS = 30
-    SUPPORTED_METHODS = ('GET', 'POST')
-
-def is_request_valid(request_duration: int, method: str) -> bool:
-    # This function is predictable. Its behavior depends on its inputs and
-    # constants that are guaranteed to be immutable.
-    if method not in Config.SUPPORTED_METHODS:
-        return False
-    return request_duration < Config.TIMEOUT_SECONDS
-
-# Config.TIMEOUT_SECONDS = 1 # Raises ImmutableError, protecting the function.
-```
-
----
 
 ## License
 
