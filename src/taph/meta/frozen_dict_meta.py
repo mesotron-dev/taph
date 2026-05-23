@@ -1,10 +1,12 @@
 """The FrozenDict Metaclass Factory module."""
 
-from collections.abc import Mapping
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from taph.frozen_dict import FrozenDict
+
 from taph.config.meta_conf import frozen_dict_conf as frozen_dict
 from taph.meta.taph_meta import TaphType
 from taph.tools.freeze_tools import freeze
@@ -63,10 +65,13 @@ class FrozenDictType(TaphType):
 
     def __call__(self, *args: object, **kwargs: object) -> object:
         """Manage the creation of the FrozenDict."""
-        if len(args) == 1 and isinstance(args[0], Mapping) and not kwargs:
-            data = args[0]
-        else:
-            data = dict(*args, **kwargs)
+        cls = cast('type', self)
+        if len(args) == 1 and isinstance(args[0], cls) and not kwargs:
+            return args[0]
+        data: dict[object, object] = cast(
+            'dict[object, object]',
+            dict(*args, **kwargs)
+        )
 
         digest_index, keys, values, digest = _builder(data)
         instance: FrozenDict[object, object] = object.__new__(
