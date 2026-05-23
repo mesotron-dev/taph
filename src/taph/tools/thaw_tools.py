@@ -14,7 +14,6 @@ from functools import singledispatch
 
 from taph.config.tools_conf import thaw_error_messages as error_msg
 from taph.exceptions import ThawError
-from taph.frozen_dict import FrozenDict
 from taph.protocols import Thawable
 from taph.tools.core_tools import is_atom, is_immutable, is_mutable
 
@@ -77,16 +76,6 @@ def _(data: deque[object]) -> deque[object]:
 @_thaw.register(dict)
 def _(data: dict[object, object]) -> dict[object, object]:
     """Thaw the contents of a dictionary.
-
-    Recursively thaws all values.
-
-    """
-    return {k: thaw(v) for k, v in data.items()}
-
-
-@_thaw.register(FrozenDict)
-def _(data: FrozenDict[object, object]) -> dict[object, object]:
-    """Thaw a FrozenDict into a dictionary.
 
     Recursively thaws all values.
 
