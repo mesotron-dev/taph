@@ -257,14 +257,19 @@ log_file = "dist/log/pytest.log"
 log_file_level = "INFO"
 
 [tool.coverage.run]
-source = ["taph"]
+source = ["src/taph"]  
 branch = true
 data_file = "./dist/.coverage"
 omit = [
     "tests/*",
     "*/__init__.py",
     "*/dist/*",
-    ".venv",
+]
+
+[tool.coverage.paths]
+source = [
+    "src/taph",
+    "**/site-packages/taph",
 ]
 
 [tool.coverage.report]
