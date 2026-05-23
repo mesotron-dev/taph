@@ -6,50 +6,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.2.0] - 2026-05-22
 ### Added
-- setup tools subpackage
-- validation_tools module created
-- Defined is_valid_slot function for dynamic __slots__ creation.
-- Defined canonical_slots function for dynamic __slots__ creation.
+- Setup tools subpackage.
+- `validation_tools` module (`is_valid_slot`, `canonical_slots`).
 - Added the protocols module with Freeze and Freezable protocols.
 - Added ThawError to exceptions module.
-- Added the config and test_config subpackages.
+- Protocols module with `Freezable`, `Thawable`, and `Immutable` protocols.
+- `ThawError` exception.
+- Configuration subpackage.
+- Added the test modules and config.
+- Full support for core classes: `Record`, `Manifest`, and `FrozenDict` (with metaclasses and views).
 
 ### Changed
-- Update librt v0.8.0 -> v0.8.1 & uv.lock
-- Update ruff v0.15.1 -> v0.15.2 & uv.lock
-- Update exceptions module with new class names
-- Update protocols module with the Immutable protocol
-- Update taph.__init__ module with new names
-- Update ruff v0.15.2 -> v0.15.4
-- Update pyproject.tool.ruff.lint with more coverage and sorted list
-- Update taph.protocols doc strings
-- Update max statements to a more lenient 20 in pyproject.toml ruff lint
-- Update ruff v0.15.4 -> v0.15.7
-- Update coverage v7.13.4 -> v7.13.5
-- Update project lock file
-- Update protocols module with thaw protocols
-- Update pygments v2.19.2 -> v2.20.0
-- Update ruff v0.15.7 -> v0.15.8
-- Update uv.log + ast-serialize==0.5.0
-- Update coverage v7.13.5 -> v7.14.0
-- Update librt v0.8.1 -> v0.11.0
-- Update mypy v1.20.0 -> v2.1.0
-- Update packaging v26.0 -> v26.2
-- Update pathspec v1.0.4 -> v1.1.1
-- Update pytest v9.0.2 -> v9.0.3
-- Update ruff v0.15.9 -> v0.15.13
+- Major refactoring: split monolithic core into focused modules and subpackages (`record`, `manifest`, `frozen_dict`, `meta/`, `views/`, `tools/`, `config/`).
+- Updated Ruff linting configuration and ruleset.
+- Increased Ruff `max-statements` limit to 25.
+- Updated development dependencies (Ruff, Coverage, MyPy, etc.).
+- Improved documentation and type hints.
+- Updated the README. 
 
 ### Fixed
-- minor doc fixes
+- Achieved **100% line and branch coverage**.
+- Fixed `ValueError` when using `tuple.index()` in lookup paths.
+- Improved `namespace_skip` to properly handle classes in nested namespaces.
+- Removed multiple unreachable code blocks.
+- Micro-optimized and reduced branching logic.
+- Fixed manifest fixtures, meta configuration typo, and various edge cases.
+- Minor documentation fixes.
+- Completed _check_number and related tests
 
 ### Refactored
-- Sorted  __all__ terms in the exceptions module
-- Minor code improvements and doc updates in the validation_tools module
-- max statements for ruff now 25
+- Explicit `__init__` compilation and class construction overrides in `RecordType` metaclass.
+- Streamlined internal APIs and reduced complexity in hash/freeze tools.
+- Sorted `__all__` terms in exceptions module.
+- General code cleanup, formatting, and test updates.
 
 ### Removed
-- Refactored core module and refactored into new classes & modules 
+- Removed legacy tests and refactored core module into new structure.
 
 ## [0.1.2] - 2026-02-12
 ### Fixed
@@ -58,37 +53,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.1] - 2026-2-11
 ### Fixed
-- fixed & added classifiers for pyproject.toml
-- minor fixes in readme
+- Fixed and added classifiers for `pyproject.toml`.
+- Minor fixes in README.
 
 ## [0.1.0] - 2026-02-11
 ### Added
-- uv.lock for release
+- uv.lock for release.
 - Integrated automated testing and linting via GitHub Actions.
-- py.typed version commit
-- Update & lint for pyproject.toml
-- Achieved 100% MC/DC test coverage for core immutability logic.
-- Added test fixtures for dynamic class creation and validation.
-- Verified protection against attribute mangling and deletion.
-- `Immutable` base class for static instances.
+- `py.typed` version commit.
+- 100% MC/DC test coverage for core immutability logic.
+- `Immutable` base class and `ImmutableType` metaclass.
 - `Namespace` metaclass for static constants.
-- `freeze` utility for recursive immutability.
-- `ImmutableType` metaclass for `__slots__` enforcement.
-- `TaphError` base exception.
-- `ImmutableError` for specific immutability violations (inherits `TypeError`)
+- `freeze` utility.
+- `TaphError` and `ImmutableError`.
 
 ### Changed
-- Update README to be release context aware
-- Fix CI for releases
-- Updates package `__init__` to expose public API.
-- Update package version in `__init__`
-- Update links and minor text lint for README.md
+- Updated README and package metadata.
+- Exposed public API in `__init__`.
 
 ## [0.0.1] - 2026-02-09
 ### Added
-- Initial project skeleton
-- CHANGELOG.md
-- Project configuration in pyproject.toml
-- README.md
-- LICENSE (Apache 2.0)
-- SECURITY.md
+- Initial project skeleton.
+- CHANGELOG.md, pyproject.toml, README.md.
+- LICENSE (Apache 2.0) and SECURITY.md.

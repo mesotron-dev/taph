@@ -1,4 +1,4 @@
-"""Taph: A library for Record objects."""
+"""Taph: Zero-overhead, deeply immutable structural primitives for Python."""
 
 from taph.exceptions import (
     FrozenDictError,
@@ -14,7 +14,7 @@ from taph.record import Record
 from taph.tools.freeze_tools import freeze
 from taph.tools.thaw_tools import thaw
 
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 __all__ = (
     'FrozenDict',
     'FrozenDictError',
