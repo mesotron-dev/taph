@@ -104,65 +104,6 @@ def test_check_number_fallback_type_error() -> None:
         _check_number('unsupported_string', hasher)  # type: ignore[arg-type]
 
 
-def test_check_number_is_inf_mcdc() -> None:
-    """MC/DC: Test floats and complex types against is_inf decision paths."""
-    hasher = blake2b(digest_size=16)
-
-    # 1. Float inf (not complex -> math.isinf executes)
-    with pytest.raises(TypeError, match='is not hashable'):
-        _check_number(float('inf'), hasher)
-
-    with pytest.raises(TypeError, match='is not hashable'):
-        _check_number(float('-inf'), hasher)
-
-    # 2. Complex inf (is complex -> cmath.isinf executes)
-    with pytest.raises(TypeError, match='is not hashable'):
-        _check_number(complex(float('inf'), 0.0), hasher)
-
-    with pytest.raises(TypeError, match='is not hashable'):
-        _check_number(complex(float('-inf'), 0.0), hasher)
-
-
-def test_check_number_is_nan_mcdc() -> None:
-    """MC/DC: Test floats and complex types against is_nan decision paths."""
-    hasher = blake2b(digest_size=16)
-
-    # 1. Float nan (not complex -> math.isnan executes)
-    with pytest.raises(TypeError, match='is not hashable'):
-        _check_number(float('nan'), hasher)
-
-    # 2. Complex nan (is complex -> cmath.isnan executes)
-    with pytest.raises(TypeError, match='is not hashable'):
-        _check_number(complex(float('nan'), 0.0), hasher)
-
-
-def test_check_number_hasattr_real_compound_condition() -> None:
-    """MC/DC: Check hasattr(data, 'real') and data.real > 0 short-circuit logic.
-
-    Conditions:
-      - hasattr(data, 'real') -> True, data.real > 0 -> True (float('inf'))
-      - hasattr(data, 'real') -> True, data.real > 0 -> False (float('-inf'))
-      - hasattr(data, 'real') -> False (decimal.Decimal('Infinity'))
-    """
-    hasher = blake2b(digest_size=16)
-
-    # Path A: hasattr is True, real > 0 is True
-    # (Writes mark.INF, then raises TypeError)
-    with pytest.raises(TypeError, match='is not hashable'):
-        _check_number(float('inf'), hasher)
-
-    # Path B: hasattr is True, real > 0 is False
-    # (Writes mark.NEG_INF, then raises TypeError)
-    with pytest.raises(TypeError, match='is not hashable'):
-        _check_number(float('-inf'), hasher)
-
-    # Path C: hasattr is False (Decimals lack 'real' attribute, short-circuiting Y)
-    # (Writes mark.NEG_INF, then raises TypeError)
-    inf_decimal = decimal.Decimal('Infinity')
-    with pytest.raises(TypeError, match='is not hashable'):
-        _check_number(inf_decimal, hasher)
-
-
 # ---------------------------------------------------------
 # 4. Singledispatch Type-Specific Registers
 # ---------------------------------------------------------
@@ -300,29 +241,172 @@ def test_hash_complex_normal() -> None:
     assert mk_digest(c1) != mk_digest(c3)
 
 
-def test_hash_infinity_nan_values() -> None:
-    """Trigger both ValueError and OverflowError fallback pathways in numeric registers.
+# ---------------------------------------------------------
+# Numeric Serializer & Special Value Checks (_check_number)
+# ---------------------------------------------------------
 
-    This covers the exception handler blocks in float and complex registrars:
-      - float('inf') -> OverflowError under float register
-      - float('nan') -> ValueError under float register
-      - complex(inf, 1) -> OverflowError under complex register
-      - complex(1, nan) -> ValueError under complex register
-    """
-    # 1. Float Exception Pathways
-    with pytest.raises(TypeError, match='is not hashable'):
-        mk_digest(float('inf'))
+def test_check_number_special_values() -> None:
+    """Test that inf, -inf, and nan are properly marked and hashing continues."""
+    hasher = blake2b(digest_size=16)
+
+    _check_number(float('inf'), hasher)
+    _check_number(float('-inf'), hasher)
+    _check_number(float('nan'), hasher)
+
+    _check_number(complex('inf'), hasher)
+    _check_number(complex('-inf'), hasher)
+    _check_number(complex('nan'), hasher)
+
+    _check_number(decimal.Decimal('Infinity'), hasher)
+    _check_number(decimal.Decimal('-Infinity'), hasher)
+    _check_number(decimal.Decimal('NaN'), hasher)
+
+
+def test_check_number_raises_on_bad_input() -> None:
+    """Non-numeric or unsupported types should raise TypeError."""
+    hasher = blake2b(digest_size=16)
 
     with pytest.raises(TypeError, match='is not hashable'):
-        mk_digest(float('nan'))
-
-    # 2. Complex Exception Pathways
-    with pytest.raises(TypeError, match='is not hashable'):
-        mk_digest(complex(float('inf'), 1.0))
+        _check_number('not a number', hasher)  # type: ignore[arg-type]
 
     with pytest.raises(TypeError, match='is not hashable'):
-        mk_digest(complex(1.0, float('nan')))
+        _check_number([1, 2, 3], hasher)  # type: ignore[arg-type]
 
-    # 3. Decimal Exception Pathways
-    with pytest.raises(TypeError, match='is not hashable'):
-        mk_digest(decimal.Decimal('Infinity'))
+    with pytest.raises(ZeroDivisionError):
+        _check_number(fractions.Fraction(1, 0), hasher)
+
+
+def test_check_number_branches() -> None:
+    """Coverage for all decision branches in _check_number."""
+    hasher = blake2b(digest_size=16)
+
+    # Positive inf path
+    _check_number(float('inf'), hasher)
+
+    # Negative inf path
+    _check_number(float('-inf'), hasher)
+
+    # NaN path
+    _check_number(float('nan'), hasher)
+
+    # Complex inf path
+    _check_number(complex('inf'), hasher)
+
+    # Decimal inf path
+    _check_number(decimal.Decimal('Infinity'), hasher)
+
+
+def test_numeric_dispatchers_exception_paths() -> None:
+    """Test OverflowError and ValueError paths _check_number types."""
+
+    test_values = [
+        float('inf'),
+        float('-inf'),
+        float('nan'),
+        complex('inf'),
+        complex('nan'),
+        decimal.Decimal('Infinity'),
+        decimal.Decimal('-Infinity'),
+        decimal.Decimal('NaN'),
+    ]
+
+    for value in test_values:
+        digest = mk_digest(value)
+        assert isinstance(digest, bytes)
+        assert len(digest) == 16
+
+
+def test_special_floats_inf_nan() -> None:
+    """Verify BLAKE2b digest determinism and separation for float inf, -inf, and nan."""
+    pos_inf = float('inf')
+    neg_inf = float('-inf')
+    nan_val = float('nan')
+
+    digest_pos_inf = mk_digest(pos_inf)
+    digest_neg_inf = mk_digest(neg_inf)
+    digest_nan = mk_digest(nan_val)
+
+    # All must produce valid, unique digests
+    assert isinstance(digest_pos_inf, bytes)
+    assert len(digest_pos_inf) == 16
+    assert digest_pos_inf != digest_neg_inf
+    assert digest_pos_inf != digest_nan
+    assert digest_neg_inf != digest_nan
+
+    # NaN must hash deterministically, regardless of distinct object identity
+    assert mk_digest(float('nan')) == digest_nan
+
+
+def test_special_complex_inf_nan() -> None:
+    """Verify BLAKE2b digests for complex inf, -inf, and nan values."""
+    comp_inf = complex('inf')
+    comp_neg_inf = complex('-inf')
+    comp_nan = complex('nan')
+
+    digest_inf = mk_digest(comp_inf)
+    digest_neg_inf = mk_digest(comp_neg_inf)
+    digest_nan = mk_digest(comp_nan)
+
+    assert isinstance(digest_inf, bytes)
+    assert len(digest_inf) == 16
+    assert digest_inf != digest_neg_inf
+    assert digest_inf != digest_nan
+
+
+def test_special_decimals_inf_nan() -> None:
+    """Verify BLAKE2b digests for Decimal infinity and NaN values."""
+    dec_inf = decimal.Decimal('Infinity')
+    dec_neg_inf = decimal.Decimal('-Infinity')
+    dec_nan = decimal.Decimal('NaN')
+
+    digest_inf = mk_digest(dec_inf)
+    digest_neg_inf = mk_digest(dec_neg_inf)
+    digest_nan = mk_digest(dec_nan)
+
+    assert isinstance(digest_inf, bytes)
+    assert len(digest_inf) == 16
+    assert digest_inf != digest_neg_inf
+    assert digest_inf != digest_nan
+
+
+def test_fraction_boundary_conditions() -> None:
+    """Verify Fraction boundary cases and division-by-zero checks."""
+    frac_normal = fractions.Fraction(1, 3)
+    assert isinstance(mk_digest(frac_normal), bytes)
+
+    # Fractions with zero denominator are invalid in Python's fraction module,
+    # raising ZeroDivisionError during construction.
+    with pytest.raises(ZeroDivisionError):
+        _ = fractions.Fraction(1, 0)
+
+
+def test_invalid_type_error_boundaries() -> None:
+    """Validate that unhashable or invalid types strictly raise a TypeError."""
+
+    class UnhashableObject:
+        """A plain class without the Immutable or Freezable protocols."""
+        pass
+
+    # Standard mutable structures
+    with pytest.raises(TypeError, match="is not hashable"):
+        mk_digest([1, 2, 3])  # list
+
+    with pytest.raises(TypeError, match="is not hashable"):
+        mk_digest({"a": 1})  # dict
+
+    # Custom non-conforming objects
+    with pytest.raises(TypeError, match="is not hashable"):
+        mk_digest(UnhashableObject())
+
+
+def test_check_number_unsupported_types() -> None:
+    """Verify that _check_number raises TypeError directly for non-numeric types."""
+    from hashlib import blake2b
+    hasher = blake2b(digest_size=16)
+
+    # Passing raw strings to _check_number must trigger the internal except handler
+    with pytest.raises(TypeError, match="is not hashable"):
+        _check_number("string", hasher)  # type: ignore[arg-type]
+
+    with pytest.raises(TypeError, match="is not hashable"):
+        _check_number(None, hasher)  # type: ignore[arg-type]
