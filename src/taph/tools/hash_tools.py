@@ -117,7 +117,7 @@ def hash_mapping(size: int, items: Iterable[tuple[bytes, bytes]]) -> bytes:
 
 
 def _check_number(
-    data: complex | decimal.Decimal | fractions.Fraction | float,
+    data: complex | decimal.Decimal | fractions.Fraction,
     hasher: blake2b
 ) -> None:
     """Mark special floating-point values (inf, -inf, nan) and continue.
