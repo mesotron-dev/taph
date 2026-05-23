@@ -61,5 +61,5 @@ jobs:
 
       - name: Run Tests with Coverage
         run: |
-          uv run --group test coverage run -m pytest && \
-          uv run --group test coverage report
+          PYTHONPATH=src .venv/bin/coverage run -m pytest && \
+          PYTHONPATH=src .venv/bin/coverage report

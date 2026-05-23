@@ -264,7 +264,6 @@ omit = [
     "tests/*",
     "*/__init__.py",
     "*/dist/*",
-    ".venv",
 ]
 
 [tool.coverage.report]
