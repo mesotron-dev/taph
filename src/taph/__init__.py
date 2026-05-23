@@ -14,7 +14,7 @@ from taph.record import Record
 from taph.tools.freeze_tools import freeze
 from taph.tools.thaw_tools import thaw
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __all__ = (
     'FrozenDict',
     'FrozenDictError',
