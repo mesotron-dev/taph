@@ -81,7 +81,7 @@ class FrozenDict[Key, Value](Mapping[Key, Value], metaclass=FrozenDictType):
         if position < len(self._index_):
             stored_digest, index = self._index_[position]
             if stored_digest == key_digest and self._keys_[index] == key:
-                return self._values_[index]  # type: ignore
+                return True
 
         return False
 
@@ -128,6 +128,10 @@ class FrozenDict[Key, Value](Mapping[Key, Value], metaclass=FrozenDictType):
         """
         if hasattr(other, taph.digest):
             return bool(self.__digest__ == getattr(other, taph.digest))
+        if isinstance(other, Mapping):
+            if len(self) != len(other):
+                return False
+            return all(k in self and self[k] == v for k, v in other.items())
         return NotImplemented
 
     def __getitem__(self, key: Key) -> Value:
@@ -344,6 +348,18 @@ class FrozenDict[Key, Value](Mapping[Key, Value], metaclass=FrozenDictType):
 
         """
         return hex_id(self.__digest__)
+
+    @classmethod
+    def from_dict(cls, data: Mapping[str, object]) -> FrozenDict[Key, Value]:
+        """Create a new FrozenDict from a Mapping.
+
+        This is for symmetry with other Maps and within the package.
+
+        Args:
+            data (Mapping[str, object]): A mapping object.
+
+        """
+        return cls(data)
 
     @classmethod
     def fromkeys(cls, keys: Iterable[str], value: object = None) -> None:
