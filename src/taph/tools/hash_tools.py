@@ -117,8 +117,24 @@ def hash_mapping(size: int, items: Iterable[tuple[bytes, bytes]]) -> bytes:
 
 
 def _check_number(
-    data: complex | decimal.Decimal | fractions.Fraction, hasher: blake2b
+    data: complex | decimal.Decimal | fractions.Fraction | float,
+    hasher: blake2b
 ) -> None:
+    """Mark special floating-point values (inf, -inf, nan) and continue.
+
+    These values cannot use .as_integer_ratio(). so we mark them
+    So each value is explicitly in the digest for deterministic hashing.
+
+    Args:
+        data (complex, Decimal, Fraction, float):
+            The value to check for inf or nan.
+        hasher (blake2b hash):
+            The hasher used to create the digest.
+
+    Raises:
+        TypeError: Unhashable type of data.
+
+    """
     try:
         is_inf = (
             math.isinf(data)
@@ -138,10 +154,13 @@ def _check_number(
             hasher.update(struct.pack(code.UNSIGNED_BYTE, mark.INF))
         else:
             hasher.update(struct.pack(code.UNSIGNED_BYTE, mark.NEG_INF))
+        return
 
     if is_nan:
         hasher.update(struct.pack(code.UNSIGNED_BYTE, mark.NAN))
+        return
 
+    # Some unhashable value
     raise TypeError(error_msg.type_error(type(data).__name__))
 
 
