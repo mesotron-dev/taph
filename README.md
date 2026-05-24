@@ -14,11 +14,11 @@ Taph's core value proposition: **Fast & Reliable Immutability.**
 ## Core Features
 
 -   **Zero-Overhead:** Achieves immutability using Python's Method Resolution Order (MRO) and metaclass injection.
--   **Memory Efficiency:** Enforces `__slots__` usage, eliminating the memory footprint of `__dict__` for every instance.
--   **Deep Immutability:** Recursively transforms nested mutable structures (like `list`, `dict`) into immutable counterparts (`tuple`, `MappingProxyType`) during class creation.
--   **Zero Dependencies:** A single-file core module built using the Python Standard Library.
-- **Cryptographic Stability**: Every object gets a deterministic BLAKE2b content digest.
-- **Simple & Fast**: Clean APIs with excellent ergonomics.    
+-   **Zero Dependencies:** Core module built using the Python Standard Library.
+-   **Simple & Fast**: Clean APIs with excellent ergonomics.
+-   **Memory Efficiency:** Enforces `__slots__` usage.
+-   **Deep Immutability:** Recursively transforms nested mutable structures into immutable counterparts. 
+-   **Cryptographic Stability**: Every object gets a deterministic content digest.
 
 ## Usage
 
