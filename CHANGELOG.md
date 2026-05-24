@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2026--5-24
+### Fixed
+- Corrected pyproject exclusion of tools
+- Minor doc fixes
+
 ## [0.2.0] - 2026-05-22
 ### Added
 - Setup tools subpackage.
